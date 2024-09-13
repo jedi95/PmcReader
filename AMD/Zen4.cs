@@ -69,7 +69,7 @@ namespace PmcReader.AMD
                 return results;
             }
 
-            public string[] columns = new string[] { "Item", "Active Cycles", "Instructions", "IPC",
+            public string[] columns = new string[] { "Item", "Active Cycles", "Instructions", "IPC", "Retiring",
                 "Bad Speculation", "Frontend Bound", "Backend Bound", "SMT Contention", "Microcoded Ops" };
 
             public string GetHelpText()
@@ -90,6 +90,7 @@ namespace PmcReader.AMD
                         FormatLargeNumber(counterData.aperf),
                         FormatLargeNumber(counterData.instr),
                         string.Format("{0:F2}", counterData.instr / counterData.aperf),
+                        FormatPercentage(retiredOps, slots),
                         FormatPercentage(decoderOps - retiredOps, slots),
                         FormatPercentage(frontendBoundSlots, slots),
                         FormatPercentage(backendBoundSlots, slots),
