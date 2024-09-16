@@ -88,7 +88,7 @@ namespace PmcReader.AMD
             Ring0.ReadMsr(MSR_RAPL_PWR_UNIT, out raplPwrUnit);
             ulong energyUnits = (raplPwrUnit >> 8) & 0x1F; // bits 8-12 = energy status units
             energyStatusUnits = (float)Math.Pow(0.5, (double)energyUnits); // 1/2 ^ (value)
-                                                                           // This is dumb, but better than hardcoding 8 cores per CCX (19h)
+            // This is dumb, but better than hardcoding 8 cores per CCX
             switch (coreCount)
             {
                 // 1 CCX cases
@@ -119,7 +119,7 @@ namespace PmcReader.AMD
                 case 72: // 12 CCX
                 // case 96: // 16 CCX. Ignored due to conflict with more common 12 CCX x 8C = 96 configuration.
                 case 144: // 24 CCX
-                          // case 192: // 32 CCX. Ignored due to conflict with more common 24 CCX x 8C = 192 configuration.
+                // case 192: // 32 CCX. Ignored due to conflict with more common 24 CCX x 8C = 192 configuration.
                     coresPerCCX = 6;
                     break;
                 case 14: // 2 CCX
