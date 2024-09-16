@@ -547,7 +547,7 @@ namespace PmcReader.AMD
                 return results;
             }
 
-            public string[] columns = new string[] { "Item", "Active Cycles", "Instructions", "IPC", "Op$ Hitrate", "Op$ MPKI", "L1i Hitrate", "L1i MPKI", "iTLB MPKI", "L2 iTLB Hitrate", "L2 iTLB MPKI" };
+            public string[] columns = new string[] { "Item", "Active Cycles", "Instructions", "IPC", "Op$ Hitrate", "Op$ MPKI", "L1i Hitrate", "L1i MPKI", "iTLB Hitrate", "iTLB MPKI", "L2 iTLB Hitrate", "L2 iTLB MPKI" };
 
             public string GetHelpText()
             {
@@ -564,6 +564,7 @@ namespace PmcReader.AMD
                         string.Format("{0:F2}", 1000 * counterData.ctr1 / counterData.instr),
                         string.Format("{0:F2}%", 100 * (1 - counterData.ctr3 / counterData.ctr2)),
                         string.Format("{0:F2}", 1000 * counterData.ctr3 / counterData.instr),
+                        FormatPercentage(counterData.ctr2 - counterData.ctr4, counterData.ctr2), // L1i access - iTLB miss (hits) / L1i access
                         string.Format("{0:F2}", 1000 * (counterData.ctr4 + counterData.ctr5) / counterData.instr),
                         FormatPercentage(counterData.ctr4, counterData.ctr4 + counterData.ctr5),
                         string.Format("{0:F2}", 1000 * counterData.ctr5 / counterData.instr),
@@ -680,7 +681,7 @@ namespace PmcReader.AMD
                 return results;
             }
 
-            public string[] columns = new string[] { "Item", "Active Cycles", "Instructions", "IPC", "L1 TLB MPKI", "L2 TLB Hitrate", "L2 TLB MPKI" };
+            public string[] columns = new string[] { "Item", "Active Cycles", "Instructions", "IPC", "L1 TLB Hitate", "L1 TLB MPKI", "L2 TLB Hitrate", "L2 TLB MPKI" };
 
             public string GetHelpText()
             {
@@ -693,6 +694,7 @@ namespace PmcReader.AMD
                         FormatLargeNumber(counterData.aperf),
                         FormatLargeNumber(counterData.instr),
                         string.Format("{0:F2}", counterData.instr / counterData.aperf),
+                        FormatPercentage(counterData.ctr3 - counterData.ctr0, counterData.ctr3), // LS dispatch - DTLB miss (hits) / LS dispatch
                         string.Format("{0:F2}", 1000 * (counterData.ctr0 + counterData.ctr1) / counterData.aperf),
                         FormatPercentage(counterData.ctr0 - counterData.ctr1, counterData.ctr0),
                         string.Format("{0:F2}", 1000 * (counterData.ctr1) / counterData.aperf),
