@@ -72,6 +72,7 @@ namespace PmcReader.AMD
         private Stopwatch lastPkgPwrTime;
 
         private float energyStatusUnits;
+        protected int coresPerCCX = 8;
 
         public Amd19hCpu()
         {
@@ -87,6 +88,64 @@ namespace PmcReader.AMD
             Ring0.ReadMsr(MSR_RAPL_PWR_UNIT, out raplPwrUnit);
             ulong energyUnits = (raplPwrUnit >> 8) & 0x1F; // bits 8-12 = energy status units
             energyStatusUnits = (float)Math.Pow(0.5, (double)energyUnits); // 1/2 ^ (value)
+                                                                           // This is dumb, but better than hardcoding 8 cores per CCX (19h)
+            switch (coreCount)
+            {
+                // 1 CCX cases
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                    coresPerCCX = coreCount;
+                    break;
+                case 10: // 2 CCX
+                case 20: // 4 CCX
+                case 30: // 6 CCX
+                case 40: // 8 CCX
+                case 60: // 12 CCX
+                case 80: // 16 CCX
+                case 120: // 24 CCX
+                case 160: // 32 CCX
+                    coresPerCCX = 5;
+                    break;
+                case 12: // 2 CCX
+                case 24: // 4 CCX
+                case 36: // 6 CCX
+                case 48: // 8 CCX
+                case 72: // 12 CCX
+                // case 96: // 16 CCX. Ignored due to conflict with more common 12 CCX x 8C = 96 configuration.
+                case 144: // 24 CCX
+                          // case 192: // 32 CCX. Ignored due to conflict with more common 24 CCX x 8C = 192 configuration.
+                    coresPerCCX = 6;
+                    break;
+                case 14: // 2 CCX
+                case 28: // 4 CCX
+                case 42: // 6 CCX
+                case 56: // 8 CCX
+                case 84: // 12 CCX
+                case 112: // 16 CCX
+                case 168: // 24 CCX
+                case 224: // 32 CCX
+                    coresPerCCX = 7;
+                    break;
+                case 16: // 2 CCX
+                case 32: // 4 CCX
+                //case 48: // 6 CCX. Ignored due to conflict with more common 8 CCX x 6C = 48 configuration.
+                case 64: // 8 CCX
+                case 96: // 12 CCX
+                case 128: // 16 CCX
+                case 192: // 24 CCX
+                case 256: // 32 CCX
+                    coresPerCCX = 8;
+                    break;
+                default:
+                    coresPerCCX = 8;
+                    break;
+            }
         }
 
         /// <summary>
@@ -257,26 +316,9 @@ namespace PmcReader.AMD
         /// <returns>CCX ID</returns>
         public int GetCcxId(int threadId)
         {
-            // linux arch/x86/kernel/cpu/cacheinfo.c:666 does this and it seems to work?
-            /*uint extendedApicId, ecx, edx, ebx;
-            OpCode.CpuidTx(0x8000001E, 0, out extendedApicId, out ebx, out ecx, out edx, 1UL << threadId);
-            return (int)(extendedApicId >> 3);*/
-
-            // this is a hack. windows numbers cores/threads like (0,1) = core 1, (2,3) = core 2, etc
-            if (coreCount * 2 == threadCount) return threadId / 8;
-            else return threadId / 4;
-        }
-
-        /// <summary>
-        /// Get thread CCX ID
-        /// </summary>
-        /// <param name="threadId"></param>
-        /// <returns></returns>
-        public int Get19hCcxId(int threadId)
-        {
             // placeholder until I figure this out. Again just how windows assigns thread IDs
-            if (coreCount * 2 == threadCount) return threadId / 16;
-            else return threadId / 8;
+            if (coreCount * 2 == threadCount) return threadId / (coresPerCCX * 2);
+            else return threadId / coresPerCCX;
         }
 
         /// <summary>
