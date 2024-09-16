@@ -101,7 +101,7 @@ namespace PmcReader.AMD
                 return results;
             }
 
-            public string[] columns = new string[] { "Item", "Active Cycles", "Instructions", "IPC", "Ops/C", "Op$ Hitrate", "Op$ Ops/C", "Op$ Active", "Op$ Ops", "Decoder Ops/C", "Decoder Active", "Decoder Ops", "Bogus Ops", "Op Queue Empty Cycles" };
+            public string[] columns = new string[] { "Item", "Active Cycles", "Instructions", "IPC", "Retired Ops/C", "Op$ Ops/C", "Decoder Ops/C", "Op$ Hitrate", "Op$ Active", "Op$ Ops", "Decoder Active", "Decoder Ops", "Bogus Ops", "Op Queue Empty Cycles" };
 
             public string GetHelpText()
             {
@@ -116,19 +116,19 @@ namespace PmcReader.AMD
                 float bogusOps = 100 * (counterData.ctr0 + counterData.ctr2 - counterData.ctr4) / (counterData.ctr0 + counterData.ctr2);
                 if (counterData.ctr4 > counterData.ctr0 + counterData.ctr2) bogusOps = 0;
                 return new string[] { label,
-                    FormatLargeNumber(counterData.aperf),
-                    FormatLargeNumber(counterData.instr),
-                    string.Format("{0:F2}", counterData.instr / counterData.aperf),
-                    string.Format("{0:F2}", counterData.ctr4 / counterData.aperf),
-                    string.Format("{0:F2}%", 100 * counterData.ctr0 / (counterData.ctr0 + counterData.ctr2)),
-                    string.Format("{0:F2}", counterData.ctr0 / counterData.ctr1),
-                    string.Format("{0:F2}%", 100 * counterData.ctr1 / counterData.aperf),
-                    FormatLargeNumber(counterData.ctr0),
-                    string.Format("{0:F2}", counterData.ctr2 / counterData.ctr3),
-                    string.Format("{0:F2}%", 100 * counterData.ctr3 / counterData.aperf),
-                    FormatLargeNumber(counterData.ctr2),
-                    string.Format("{0:F2}%", bogusOps),
-                    string.Format("{0:F2}%", 100 * counterData.ctr5 / counterData.aperf) };
+                    FormatLargeNumber(counterData.aperf), // Active Cycles
+                    FormatLargeNumber(counterData.instr), // Instructions
+                    string.Format("{0:F2}", counterData.instr / counterData.aperf), // IPC
+                    string.Format("{0:F2}", counterData.ctr4 / counterData.aperf), // Retired Ops/C
+                    string.Format("{0:F2}", counterData.ctr0 / counterData.aperf), // Op$ Ops/C
+                    string.Format("{0:F2}", counterData.ctr2 / counterData.aperf), // Decoder Ops/C
+                    string.Format("{0:F2}%", 100 * counterData.ctr0 / (counterData.ctr0 + counterData.ctr2)), // Op$ Hitrate
+                    string.Format("{0:F2}%", 100 * counterData.ctr1 / counterData.aperf), // Op$ Active
+                    FormatLargeNumber(counterData.ctr0), // Op$ Ops
+                    string.Format("{0:F2}%", 100 * counterData.ctr3 / counterData.aperf), // Decoder Active
+                    FormatLargeNumber(counterData.ctr2), // Decoder Ops
+                    string.Format("{0:F2}%", bogusOps), // Bogus Ops
+                    string.Format("{0:F2}%", 100 * counterData.ctr5 / counterData.aperf) }; // Op Queue Empty Cycles
             }
         }
 
