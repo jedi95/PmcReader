@@ -132,6 +132,17 @@ namespace PmcReader
                         crazyThings = new AMD.Amd17hCpu();
                     }
                 }
+                else if (cpuFamily == 0x1A)
+                {
+                    if (cpuModel == 0x44)
+                    {
+                        // Attempt to re-use some Zen 4 stuff for Zen 5 (for now)
+                        coreMonitoring.monitoringArea = new AMD.Zen5();
+                        l3Monitoring.monitoringArea = new AMD.Zen4L3Cache();
+                        dfMonitoring.monitoringArea = new AMD.Zen4DataFabric(AMD.Zen4DataFabric.DfType.Client);
+                        crazyThings = new AMD.Amd19hCpu();
+                    }
+                }
                 else if (cpuFamily == 0x15)
                 {
                     if (cpuModel == 0x2)
